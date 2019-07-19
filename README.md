@@ -34,15 +34,6 @@
       compile project(':react-native-dynamic-yield')
   	```
 
-#### Windows
-[Read it! :D](https://github.com/ReactWindows/react-native)
-
-1. In Visual Studio add the `RNDynamicYield.sln` in `node_modules/react-native-dynamic-yield/windows/RNDynamicYield.sln` folder to their solution, reference from their app.
-2. Open up your `MainPage.cs` app
-  - Add `using Dynamic.Yield.RNDynamicYield;` to the usings at the top of the file
-  - Add `new RNDynamicYieldPackage()` to the `List<IReactPackage>` returned by the `Packages` method
-
-
 ## Usage
 ```javascript
 import RNDynamicYield from 'react-native-dynamic-yield';
