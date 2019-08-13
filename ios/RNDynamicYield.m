@@ -14,6 +14,7 @@
 NSString *const kExperimentsReady = @"RNDynamicYield/experimentsReady";
 NSString *const kRecommendation = @"RNDynamicYield/recommendation";
 NSString *const kUserAffinityScore = @"RNDynamicYield/userAffinityScore";
+NSString *const kDynamicVariable = @"RNDynamicYield/dynamicVariable";
 
 NSString *const kExpStateReady = @"READY";
 NSString *const kExpStateNotReady = @"NOT_READY";
@@ -59,6 +60,7 @@ NSString *const kExpStateNotReady = @"NOT_READY";
               @"DY_EVENT_EXPERIMENTS_READY": kExperimentsReady,
               @"DY_EVENT_RECOMMENDATION": kRecommendation,
               @"DY_EVENT_USER_AFFINITY_SCORE": kUserAffinityScore,
+              @"DY_EVENT_DYNAMIC_VARIABLE": kDynamicVariable,
               
               @"DY_EXP_STATE_READY": kExpStateReady,
               @"DY_EXP_STATE_NOT_READY": kExpStateNotReady,
@@ -69,7 +71,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[kExperimentsReady];
+    return @[kExperimentsReady, kRecommendation, kUserAffinityScore, kDynamicVariable];
 }
 
 //Basic Methods
@@ -156,6 +158,14 @@ RCT_EXPORT_METHOD(trackRecomItemsRealImpression:(NSString *)widgetID itemIDs:(NS
 RCT_EXPORT_METHOD(trackRecomItemClick:(NSString *)widgetID itemID:(NSString *)itemID)
 {
     [[DYApi getInstance] TrackRecomItemClick:widgetID andItemID:itemID];
+}
+
+//Variable Sets
+RCT_EXPORT_METHOD(getDynamicVariable:(NSString *)varName defaultValue:(NSString *)defaultValue)
+{
+    NSString* smartVar = [[DYApi getInstance] getSmartVariable:varName defaultValue:defaultValue];
+    [self sendEventWithName:kDynamicVariable body:@{@"value": smartVar}];
+
 }
 
 @end
