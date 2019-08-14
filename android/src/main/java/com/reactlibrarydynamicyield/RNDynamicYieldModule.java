@@ -49,6 +49,7 @@ public class RNDynamicYieldModule extends ReactContextBaseJavaModule implements 
     private static final String DY_EVENT_EXPERIMENTS_READY = "DY_EVENT_EXPERIMENTS_READY";
     private static final String DY_EVENT_RECOMMENDATION = "kRecommendation";
     private static final String DY_EVENT_USER_AFFINITY_SCORE = "kUserAffinityScore";
+    private static final String DY_EVENT_DYNAMIC_VARIABLE = "kDynamicVariable";
 
     private static final String DY_EXP_STATE_READY = "READY";
     private static final String DY_EXP_STATE_NOT_READY = "NOT READY";
@@ -95,7 +96,7 @@ public class RNDynamicYieldModule extends ReactContextBaseJavaModule implements 
         WritableMap params = Arguments.createMap();
         params.putArray("recommendation", RNUtil.jsonArrayToWritableArray(jsonArray));
         params.putString("widgetID", widgetID);
-        sendEvent(reactContext, DY_EVENT_USER_AFFINITY_SCORE, params);
+        sendEvent(reactContext, DY_EVENT_RECOMMENDATION, params);
     }
 
     //***** DY Listener Implementation - END *****//
@@ -118,6 +119,7 @@ public class RNDynamicYieldModule extends ReactContextBaseJavaModule implements 
         constants.put("DY_EVENT_EXPERIMENTS_READY", DY_EVENT_EXPERIMENTS_READY);
         constants.put("DY_EVENT_USER_AFFINITY_SCORE", DY_EVENT_USER_AFFINITY_SCORE);
         constants.put("DY_EVENT_RECOMMENDATION", DY_EVENT_RECOMMENDATION);
+        constants.put("DY_EVENT_DYNAMIC_VARIABLE", DY_EVENT_DYNAMIC_VARIABLE);
 
         constants.put("DY_EXP_STATE_READY", DY_EXP_STATE_READY);
         constants.put("DY_EXP_STATE_NOT_READY", DY_EXP_STATE_READY);
@@ -201,4 +203,14 @@ public class RNDynamicYieldModule extends ReactContextBaseJavaModule implements 
     public void trackRecomItemClick(String widgetID, String itemID) {
         DYApi.getInstance().trackRecomItemClick(widgetID, itemID);
     }
+
+// Variable Sets
+    @ReactMethod
+    public void getDynamicVariable(String varName, String defaultValue) {
+        String smartVar = (String) DYApi.getInstance().getSmartVariable(varName, defaultValue);
+
+        WritableMap params = Arguments.createMap();
+        params.putString("value", smartVar);
+        sendEvent(reactContext, DY_EVENT_DYNAMIC_VARIABLE, params);
+    } 
 }
