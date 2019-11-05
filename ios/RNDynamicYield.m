@@ -15,6 +15,8 @@ NSString *const kExperimentsReady = @"RNDynamicYield/experimentsReady";
 NSString *const kRecommendation = @"RNDynamicYield/recommendation";
 NSString *const kUserAffinityScore = @"RNDynamicYield/userAffinityScore";
 NSString *const kDynamicVariable = @"RNDynamicYield/dynamicVariable";
+NSString *const kDynamicContent = @"RNDynamicYield/dynamicContent";
+NSString *const kEvaluator = @"RNDynamicYield/kEvaluator";
 
 NSString *const kExpStateReady = @"READY";
 NSString *const kExpStateNotReady = @"NOT_READY";
@@ -61,6 +63,8 @@ NSString *const kExpStateNotReady = @"NOT_READY";
               @"DY_EVENT_RECOMMENDATION": kRecommendation,
               @"DY_EVENT_USER_AFFINITY_SCORE": kUserAffinityScore,
               @"DY_EVENT_DYNAMIC_VARIABLE": kDynamicVariable,
+              @"DY_EVENT_DYNAMIC_CONTENT": kDynamicContent,
+              @"DY_EVENT_EVALUATOR": kEvaluator,
               
               @"DY_EXP_STATE_READY": kExpStateReady,
               @"DY_EXP_STATE_NOT_READY": kExpStateNotReady,
@@ -71,7 +75,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[kExperimentsReady, kRecommendation, kUserAffinityScore, kDynamicVariable];
+    return @[kExperimentsReady, kRecommendation, kUserAffinityScore, kDynamicVariable, kDynamicContent, kEvaluator];
 }
 
 //Basic Methods
@@ -133,6 +137,17 @@ RCT_EXPORT_METHOD(pageView:(NSString *)uniqueId type:(contextType)contextType la
     [[DYApi getInstance] pageView:uniqueId context:context];
 }
 
+RCT_EXPORT_METHOD(setEvaluator:(NSString *)evaluatorID params:(NSArray * _Nullable)params persistent:(BOOL) persistent)
+{
+    [[DYApi getInstance] setEvaluator: evaluatorID
+        forParams: params saveBetweenSessions: persistent completionHandler: ^(NSString * _Nonnull evaluatorID, NSArray * _Nonnull params, BOOL isPersistent) {
+            if (evaluatorID != nil) {
+                [self sendEventWithName:kEvaluator body:@{@"params": params, @"evaluatorID": evaluatorID, @"isPersistent": isPersistent ? @"true" : @"false"}];
+            }
+        }
+    ];
+}
+
 //Product Recommendations
 RCT_EXPORT_METHOD(sendRecommendationRequest:(NSString *)widgetID type:(contextType)contextType language:(NSString *)lang data:(NSArray * _Nullable)data)
 {
@@ -168,6 +183,22 @@ RCT_EXPORT_METHOD(getDynamicVariable:(NSString *)varName defaultValue:(NSString 
 
 }
 
+// Dynamic Content
+RCT_EXPORT_METHOD(loadDynamicContent:(NSString *) smartObject optionalFallbackURL:(NSString *) fallbackURL) {
+    [[DYApi getInstance] loadWebView:nil withSmartObject:smartObject fallbackURL:[NSURL URLWithString: fallbackURL] completionHandler:^(UIView * _Nullable webView, NSString * _Nonnull smartObjID, NSString * _Nullable data) {
+        if (data != nil) {
+            [self sendEventWithName:kDynamicContent body:@{@"content": data, @"smartObject": smartObjID}];
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(loadDynamicImageContent:(NSString *) smartObject optionalFallbackURL:(NSString *) fallbackURL) {
+    
+    [[DYApi getInstance] loadImageView:nil withSmartObject:smartObject fallbackURL:[NSURL URLWithString: fallbackURL] completionHandler:^(UIView * _Nullable webView, NSString * _Nonnull smartObjID, NSString * _Nullable data) {
+        if (data != nil) {
+            [self sendEventWithName:kDynamicContent body:@{@"content": data, @"smartObject": smartObjID}];
+        }
+    }];
+}
+
 @end
-
-

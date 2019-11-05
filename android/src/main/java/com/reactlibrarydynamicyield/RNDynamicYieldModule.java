@@ -1,4 +1,3 @@
-
 package com.reactlibrarydynamicyield;
 
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -15,8 +14,11 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import android.content.Context;
 import android.app.Application;
 import android.view.View;
+import android.webkit.WebView;
 
 import com.dynamicyield.dyapi.DYApi;
+import com.dynamicyield.dyapi.DYApiResults.DYEvaluatorSet;
+import com.dynamicyield.dyapi.DYApiResults.DYLoadSmartObjectResult;
 import com.dynamicyield.engine.DYPageContext;
 import com.dynamicyield.listener.itf.DYListenerItf;
 import com.dynamicyield.state.DYExperimentsState;
@@ -50,6 +52,8 @@ public class RNDynamicYieldModule extends ReactContextBaseJavaModule implements 
     private static final String DY_EVENT_RECOMMENDATION = "kRecommendation";
     private static final String DY_EVENT_USER_AFFINITY_SCORE = "kUserAffinityScore";
     private static final String DY_EVENT_DYNAMIC_VARIABLE = "kDynamicVariable";
+    private static final String DY_EVENT_DYNAMIC_CONTENT = "kDynamicContent";
+    private static final String DY_EVENT_EVALUATOR = "kEvaluator";
 
     private static final String DY_EXP_STATE_READY = "READY";
     private static final String DY_EXP_STATE_NOT_READY = "NOT READY";
@@ -120,6 +124,8 @@ public class RNDynamicYieldModule extends ReactContextBaseJavaModule implements 
         constants.put("DY_EVENT_USER_AFFINITY_SCORE", DY_EVENT_USER_AFFINITY_SCORE);
         constants.put("DY_EVENT_RECOMMENDATION", DY_EVENT_RECOMMENDATION);
         constants.put("DY_EVENT_DYNAMIC_VARIABLE", DY_EVENT_DYNAMIC_VARIABLE);
+        constants.put("DY_EVENT_DYNAMIC_CONTENT", DY_EVENT_DYNAMIC_CONTENT);
+        constants.put("DY_EVENT_EVALUATOR", DY_EVENT_EVALUATOR);
 
         constants.put("DY_EXP_STATE_READY", DY_EXP_STATE_READY);
         constants.put("DY_EXP_STATE_NOT_READY", DY_EXP_STATE_READY);
@@ -187,6 +193,19 @@ public class RNDynamicYieldModule extends ReactContextBaseJavaModule implements 
         DYApi.getInstance().trackPageView(uniqueId, context);
     }
 
+    @ReactMethod
+    public void setEvaluator(String evaluatorID, ReadableArray params, boolean persistent) {
+        DYApi.getInstance().setEvaluator(evaluatorID, RNUtil.convertArrayToJson(params), persistent, new DYEvaluatorSet() {
+            @Override
+            public void onEvaluatorSet(String evaluatorID, JSONArray evaluatorValue, boolean isPersistent) {
+                WritableMap params = Arguments.createMap();
+                params.putArray("params", RNUtil.jsonArrayToWritableArray(evaluatorValue));
+                params.putString("evaluatorID", evaluatorID);
+                params.putBoolean("isPersistent", isPersistent);
+                sendEvent(reactContext, DY_EVENT_EVALUATOR, params);
+            }});
+    }
+
 // Product Recommendations
     @ReactMethod
     public void sendRecommendationRequest(String widgetID, int contextType, String lang, ReadableArray data) {
@@ -212,5 +231,19 @@ public class RNDynamicYieldModule extends ReactContextBaseJavaModule implements 
         WritableMap params = Arguments.createMap();
         params.putString("value", smartVar);
         sendEvent(reactContext, DY_EVENT_DYNAMIC_VARIABLE, params);
+    } 
+
+// Dynamic Content
+    @ReactMethod
+    public void loadDynamicContent(String smartObject, String fallbackURL) {
+        DYApi.getInstance().loadSmartObject((WebView) null, smartObject, fallbackURL, new DYLoadSmartObjectResult() {
+            @Override
+            public void onSmartObjectLoadResult(String smartObjId, String html, View view) {
+                WritableMap params = Arguments.createMap();
+                params.putString("content", html);
+                params.putString("smartObject", smartObjId);
+                sendEvent(reactContext, DY_EVENT_DYNAMIC_CONTENT, params);
+            }
+        });
     } 
 }
