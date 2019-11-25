@@ -1,9 +1,17 @@
 
 # react-native-dynamic-yield
+## Getting started for RN 0.60+
+Use version >= v2.0.0
+This module hasn't been published to npm registry, so please fork this to your own repository or use mine to install it into your project.
+`$ npm install <git remote url> --save`
 
-## Getting started
+Autolink will be done since RN 0.60. Please don't forget to do `pod install`
+Use `$ react-native unlink react-native-dynamic-yield` to unlink existing linked package.
 
-`$ npm install react-native-dynamic-yield --save`
+## Getting started for RN < 0.60
+Use version < v2.0.0
+This module hasn't been published to npm registry, so please fork this to your own repository or use mine to install it into your project.
+`$ npm install <git remote url> --save`
 
 ### Mostly automatic installation
 
