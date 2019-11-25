@@ -7,13 +7,10 @@
 //  Copyright © 2019 Facebook. All rights reserved.
 //
 
-#if __has_include("RCTEventEmitter.h")
-#import "RCTEventEmitter.h"
-#else
 #import <React/RCTEventEmitter.h>
-#endif
+#import <React/RCTBridgeModule.h>
 
-#import "DYApi.h"
+#import "DYSDK/DYApi.h"
 
 @interface RNDynamicYield : RCTEventEmitter <RCTBridgeModule, DYDelegateProtocol>
 
